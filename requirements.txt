@@ -1,0 +1,11 @@
+streamlit
+pandas
+matplotlib 
+os
+io
+dotenv 
+instructor
+pycaret[full]
+langfuse
+boto3
+joblib

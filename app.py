@@ -12,6 +12,7 @@ from langfuse.openai import BaseModel, OpenAI
 import boto3
 import joblib
 from io import BytesIO, StringIO
+import pandera as pa
 
 load_dotenv()
 
@@ -489,8 +490,10 @@ if st.session_state["page"]=="main":
         Wpisz poniżej w jednym tekście następujące informacje:
 
         - 🚻 Płeć   
-        - ⏱️ Czas biegu na **5 km** (np. 27:30)  
-        - ⏱️ Czas biegu na **10 km** (np. 1:00:00)
+        - ⏱️ Czas biegu na **5 km** (np. 00:27:30) \n
+          🔸 Zakres: **00:17:00 – 00:39:00**
+        - ⏱️ Czas biegu na **10 km** (np. 1:00:00)\n
+          🔸 Zakres: **00:35:00 – 01:17:00**
 
         Na podstawie tego tekstu automatycznie wyciągniemy dane do analizy
         """)
@@ -519,10 +522,15 @@ if st.session_state["page"]=="main":
         sex =1 if sex =="Mężczyzna 👨" else 0
         st.session_state["sex"]=sex
 
-        time_5km=st.text_input("Podaj twój cza na 5km ⏱️", placeholder="np. 00:36:22")
+        time_5km = st.text_input(
+            "⏱️ Podaj swój czas na 5 km \n 🔸 Zakres: **00:17:00 – 00:39:00**",
+            placeholder="np. 00:36:22"
+        )
+
         st.session_state["time_5km"]=time_5km
 
-        time_10km=st.text_input("Podaj twój czas na 10km ⏱️", placeholder="np. 00:55:22")
+        time_10km=st.text_input(" ⏱️ Podaj twój czas na 10km \n 🔸 Zakres: **00:35:00 – 01:17:00** " \
+        "", placeholder="np. 00:55:22")
         st.session_state["time_10km"]=time_10km
 
 
@@ -603,6 +611,20 @@ if st.session_state["page"]=="result_marathon_time":
              "time_10km":time_to_sec(st.session_state["time_10km"]),
             }
         ])
+
+        schema=pa.DataFrameSchema(
+            {
+             "sex":pa.Column(int),
+             "time_5km": pa.Column(int ,pa.Check.in_range(1030,2350)),
+             "time_10km":pa.Column(int, pa.Check.in_range(2100,4620)),
+            }
+        )
+
+        try:
+            schema.validate(df)
+        except:
+            st.info("Podaj prawidłowe informacje, stosując również przedtsawione zakresy czasowe")
+            st.stop()
 
         model = get_pipeline_model()
 
@@ -714,6 +736,7 @@ if st.session_state["page"]=="result_marathon_time":
                     # st.pyplot(fig)
                     ax.text(x1, y1, ".",color="yellow", fontsize="40")  # s to wielkość punktu
                     ax.text(x2, y2, ".",color="red", fontsize="40")
+                    ax.set_title("Porównanie tempa biegu do osiągniętych czasów")
                     ax.set_xlabel("Czas na całym dystansie")
                     ax.set_ylabel("Tempo na całym dystansie")
                     legend_elements = [
@@ -739,6 +762,7 @@ if st.session_state["page"]=="result_marathon_time":
                     ax.text(x1_2, y1_2, ".",color="yellow", fontsize="40")  # s to wielkość punktu
                     ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
                     ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
+                    ax.set_title("Porównanie czasu na 5km do osiągniętych rezultatów")
                     ax.set_xlabel("Czas na całym dystansie")
                     ax.set_ylabel("Czas na 5km")
                     legend_elements = [
@@ -766,6 +790,7 @@ if st.session_state["page"]=="result_marathon_time":
                     ax.text(x1_2, y1_2, ".",color="yellow", fontsize="40")  # s to wielkość punktu
                     ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
                     ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
+                    ax.set_title("Porównanie czasu na 10km do osiągniętych rezultatów")
                     ax.set_xlabel("Czas na całym dystansie")
                     ax.set_ylabel("Czas na 10km")
 
