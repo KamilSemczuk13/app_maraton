@@ -12,6 +12,7 @@ from langfuse.openai import BaseModel, OpenAI
 import boto3
 import joblib
 from io import BytesIO, StringIO
+import datetime
 import pandera as pa
 
 load_dotenv()
@@ -83,8 +84,8 @@ def get_compare_data():
     client=get_client()
     try:
         response=client.get_object(
-            Bucket="maraton.data",
-            Key="maraton_csv_data/data_to_compare.csv"
+            Bucket=os.environ.get("BUCKET"),
+            Key=os.environ.get("FILE_MARATON_DATA")
         )
 
         stream = response["Body"]
@@ -101,8 +102,8 @@ def get_pipeline_model():
 
     try:
         response = client.get_object(
-        Bucket="maraton.data",
-        Key="maraton_model/model.pkl"
+        Bucket=os.environ.get("BUCKET"),
+        Key=os.environ.get("FILE_MARATON_MODEL")
     )
 
         model_buffer = BytesIO(response["Body"].read())   # ⬅️ NIE dekodujemy!
@@ -118,7 +119,7 @@ def get_pipeline_model():
     
 
 class UserInfo(BaseModel):
-    sex:str
+    sex:int
     time_5km:str
     time_10km:str
 
@@ -133,9 +134,9 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
             i przedstawienie tych informacji. 
 
             <sex>: jeżeli użytkownik powie:
-            - jest mężczyzną -> wypisz M
-            - jest kobietą -> wypisz K
-            - inne -> 0
+            - jest mężczyzną -> wypisz 1
+            - jest kobietą -> wypisz 0
+            - inne -> 2
 
             <time_5km>: Jeżlei użytkownik napisze, o czsie na 5 km wypisz ten czas,
             jeżeli nie ->0
@@ -147,7 +148,7 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
 
             Odpowiedź zwróć w formacie JSON:
             {
-                "sex": "M",
+                "sex": 1,
                 "time_5km": "00:25:00",
                 "time_10km": "00:55:00"
             }
@@ -184,7 +185,7 @@ def veryfications_of_info(sex,time_5km, time_10km):
     
 def veryfications_of_info_to_error(sex,time_5km, time_10km):
     response_string="Zapomniałeś dodać informacji o: "
-    if sex=="0":
+    if sex==2:
         response_string+="płci "
     if time_5km=="0":
         response_string+="czasie na 5km "
@@ -204,11 +205,18 @@ def sec_to_time(seconds):
 
 
 def time_to_sec(time_str):
+    h,m,s=[0,0,0]
     try:
         parts = time_str.strip().split(":")
-        if len(parts) != 3:
+        if len(parts) == 2:
+            m, s =map(int, parts)
+            if m<2:
+                h=m
+                m=s
+        else:
+            h, m, s = map(int, parts)
+        if m>60 or s>60:
             return 0
-        h, m, s = map(int, parts)
         return h * 3600 + m * 60 + s
     except (ValueError, AttributeError):
         return 0
@@ -239,6 +247,63 @@ def sec_to_time_diff(seconds):
         response_str+=str(seconds_time) + " sek."
 
     return response_str
+
+def time_pred(predicted_score):
+
+    full_resp=sec_to_time_diff(time_to_sec(predicted_score))
+    st.markdown("""
+        <style>
+        .track-box {
+            background: linear-gradient(135deg, #4CAF50, #81C784);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 4px dashed white;
+            margin-top: 20px;
+            margin-bottom: 2px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Wyświetlanie przewidywanego czasu w stylizowanej bieżni
+    st.markdown(f"""
+        <div class="track-box">
+            🏃‍♂️ Twój przewidywany czas: {predicted_score}, <br>
+                Czyli: {full_resp}
+        </div>
+    """, unsafe_allow_html=True)
+def time_exp_user(expected_score):
+    resp_full=sec_to_time_diff(time_to_sec(expected_score))
+    st.markdown("""
+    <style>
+    .exp-box {
+        background: linear-gradient(135deg, #FFD700, #FFC300); /* mocny złoty gradient */
+        border-radius: 25px;
+        padding: 30px;
+        text-align: center;
+        color: white;
+        font-size: 32px;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 1);
+        border: 4px dashed white;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Wyświetlanie przewidywanego czasu w stylizowanej bieżni
+    st.markdown(f"""
+        <div class="exp-box">
+            🏆 Czas jaki chcesz osiągnąć: {expected_score}, <br>
+                    Czyli: {resp_full}
+        </div>
+    """, unsafe_allow_html=True)
 
 def description_of_score(marathon_time:bool, time_diference:float):
     resp_full=sec_to_time_diff(time_diference)
@@ -294,7 +359,7 @@ def description_of_score(marathon_time:bool, time_diference:float):
             <div class="pred_higher-box">
                 🏃‍♂️✅ Przewidujemy, że pobiegniesz lepiej od oczekiwanego przez 
                     ciebie czasu o: {time_diference} sekund <br>
-                Czyli o:{resp_full}
+                Czyli o: {resp_full}
             </div>
         """, unsafe_allow_html=True)
 
@@ -471,7 +536,7 @@ def desp_of_10km(marathon_time:bool, time_diference_10km:float, exp_time):
 
 if st.session_state["page"]=="intro":
     st.markdown('''
-                ## Witaj w palikacji CheckYourTime⏱️
+                ## Witaj w aplikacji CheckYourTime⏱️
                 Przewidzimy dla ciebie jaki czas możesz osiągnac w półmaratonie''')
     
     if st.button("Kontunuuj"):
@@ -499,7 +564,9 @@ if st.session_state["page"]=="main":
         """)
 
         user_text=st.text_area(
-            label="Podaj informacje w tym miejscu:"
+            label="Podaj informacje w tym miejscu:",
+            placeholder="np. Jestem mężczyzną na 5 km biegam 00:30:10 i na 10km biegam 00:54:10"
+
         )
         st.session_state["user_text"]=user_text
 
@@ -525,7 +592,7 @@ if st.session_state["page"]=="main":
         time_5km = st.text_input(
             "⏱️ Podaj swój czas na 5 km \n 🔸 Zakres: **00:17:00 – 00:39:00**",
             placeholder="np. 00:36:22"
-        )
+            )
 
         st.session_state["time_5km"]=time_5km
 
@@ -541,8 +608,8 @@ if st.session_state["page"]=="main":
             st.rerun()
 
 if st.session_state["page"] == "confirm":
-    st.markdown("### Czy chcesz porównać czas, jaki chcesz zdobyć w półmaratonie do przewidzianego przez nas wyniku?")
-    st.markdown("##### Wpisz swój czas w poniższym polu i wciśnij Zatwierdź ✅")
+    st.markdown("### Chcesz sprawdzić, jak Twój wymarzony czas w półmaratonie wypada na tle naszego przewidywanego wyniku?")
+    st.markdown("##### Wpisz czas jaki chcesz osiągnąć w poniższym polu i wciśnij Zatwierdź ✅")
 
     expected_score=st.text_input("Podaj czas, w jakim chciałbyś przebiec półmaraton⏱️", placeholder="np. 01:30:22")
     st.session_state["time_half_maraton"]=expected_score
@@ -581,18 +648,18 @@ if st.session_state["page"]=="result_marathon_time":
         next=False
 
         user_text=st.session_state["user_text"]
-        dict=text_to_dict_lang(user_text, TEXT_TO_TEXT)
+        dict_user=text_to_dict_lang(user_text, TEXT_TO_TEXT)
 
-        if veryfications_of_info(dict["sex"], dict["time_5km"], dict["time_10km"]):
-            info=veryfications_of_info_to_error(dict["sex"], dict["time_5km"], dict["time_10km"])
+        if veryfications_of_info(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"]):
+            info=veryfications_of_info_to_error(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"])
             st.info(info)
             st.stop()
             st.session_state["page"]="main"
             st.rerun()
 
-        st.session_state["sex"]=dict["sex"]
-        st.session_state["time_5km"]=dict["time_5km"]
-        st.session_state["time_10km"]=dict["time_10km"]
+        st.session_state["sex"]=dict_user["sex"]
+        st.session_state["time_5km"]=dict_user["time_5km"]
+        st.session_state["time_10km"]=dict_user["time_10km"]
         next=True
     next=True
     if next==True:
@@ -623,7 +690,7 @@ if st.session_state["page"]=="result_marathon_time":
         try:
             schema.validate(df)
         except:
-            st.info("Podaj prawidłowe informacje, stosując również przedtsawione zakresy czasowe")
+            st.info("Podaj prawidłowe informacje, stosując również przedstawione zakresy czasowe")
             st.stop()
 
         model = get_pipeline_model()
@@ -639,60 +706,12 @@ if st.session_state["page"]=="result_marathon_time":
 
         # wyświetlamy
        # CSS + HTML
-        st.markdown("""
-            <style>
-            .track-box {
-                background: linear-gradient(135deg, #4CAF50, #81C784);
-                border-radius: 25px;
-                padding: 30px;
-                text-align: center;
-                color: white;
-                font-size: 32px;
-                font-weight: bold;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                border: 4px dashed white;
-                margin-top: 20px;
-                margin-bottom: 2px;
-            }
-            </style>
-        """, unsafe_allow_html=True)
 
-        # Wyświetlanie przewidywanego czasu w stylizowanej bieżni
-        st.markdown(f"""
-            <div class="track-box">
-                🏃‍♂️ Twój przewidywany czas: {converted_time}
-            </div>
-        """, unsafe_allow_html=True)
+        time_pred(converted_time)
         
         expected_score=st.session_state["time_half_maraton"]
         if expected_score !=0:
-
-            st.markdown("""
-            <style>
-           .exp-box {
-                background: linear-gradient(135deg, #FFD700, #FFC300); /* mocny złoty gradient */
-                border-radius: 25px;
-                padding: 30px;
-                text-align: center;
-                color: white;
-                font-size: 32px;
-                font-weight: bold;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 1);
-                border: 4px dashed white;
-                margin-top: 20px;
-                margin-bottom: 20px;
-            }
-
-            </style>
-            """, unsafe_allow_html=True)
-
-            # Wyświetlanie przewidywanego czasu w stylizowanej bieżni
-            st.markdown(f"""
-                <div class="exp-box">
-                    🏆 Czas jaki chcesz osiągnąć: {expected_score}
-                </div>
-            """, unsafe_allow_html=True)
-            
+            time_exp_user(expected_score)
             try:
                 expected_time=time_to_sec(expected_score)
                 # st.markdown(expected_time)
