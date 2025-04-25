@@ -1,11 +1,11 @@
 streamlit
 pandas
-matplotlib 
-os
-io
-dotenv 
+matplotlib
+python-dotenv
 instructor
-pycaret[full]
+pycaret
 langfuse
 boto3
 joblib
+pandera
+openai
