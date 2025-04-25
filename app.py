@@ -58,7 +58,7 @@ if "is_ok_clicked" not in st.session_state:
 # OEPENAI LANGFUSE
 def llm_key_get():
     env=dotenv_values(".env")
-    api_client=OpenAI(api_key=env["OPENAI_API_KEY"])
+    api_client=OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     llm_key=instructor.from_openai(client=api_client)
     return llm_key
 
