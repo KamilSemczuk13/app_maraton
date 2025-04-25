@@ -1,11 +1,11 @@
 setuptools
 wheel
-streamlit==1.25.0
-pandas==2.2.1
-matplotlib==3.8.4
+streamlit
+pandas
+matplotlib
 python-dotenv
 instructor
-pycaret==3.3.0
+pycaret
 langfuse
 boto3
 joblib
