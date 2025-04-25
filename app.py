@@ -205,17 +205,21 @@ def sec_to_time(seconds):
 
 
 def time_to_sec(time_str):
-    h,m,s=[0,0,0]
+    # h,m,s=[0,0,0]
+    h=0
+    m=0
+    s=0
     try:
         parts = time_str.strip().split(":")
         if len(parts) == 2:
             m, s =map(int, parts)
-            if m<2:
+            if m<3:
                 h=m
                 m=s
+                s=0
         else:
             h, m, s = map(int, parts)
-        if m>60 or s>60:
+        if ((m>60 and m<0) or (s>60 and s<0)):
             return 0
         return h * 3600 + m * 60 + s
     except (ValueError, AttributeError):
@@ -240,13 +244,35 @@ def sec_to_time_diff(seconds):
 
     response_str=""
     if hours>0:
-        response_str+=str(hours) + " godz. i "
+        if minutes>0 or seconds_time>0:
+            response_str+=str(hours) + " godz. i "
+        else:
+            response_str+=str(hours) + " godz."
     if minutes>0:
-        response_str+=str(minutes) + " min. i "
+        if seconds_time>0:
+            response_str+=str(minutes) + " min. i "
+        else:
+            response_str+=str(minutes) + " min."
     if seconds_time>0:
         response_str+=str(seconds_time) + " sek."
 
     return response_str
+
+def format_speed_diff(speed_dif):
+    try:
+        minutes = int(speed_dif)
+        seconds = round((speed_dif - minutes) * 60)
+
+        parts = []
+        if minutes > 0:
+            parts.append(f"{minutes} min")
+        if seconds > 0:
+            parts.append(f"{seconds} sek")
+
+        return " ".join(parts) if parts else "0 sek"
+    except Exception:
+        return "Błąd danych"
+
 
 def time_pred(predicted_score):
 
@@ -364,6 +390,8 @@ def description_of_score(marathon_time:bool, time_diference:float):
         """, unsafe_allow_html=True)
 
 def desp_of_speed(marathon_time:bool, speed_diference:float, exp_time):
+
+    full_resp=format_speed_diff(speed_diference)
     if marathon_time:
         st.markdown("""
                 <style>
@@ -386,8 +414,9 @@ def desp_of_speed(marathon_time:bool, speed_diference:float, exp_time):
             # Wyświetlanie przewidywanego czasu w stylizowanej bieżni
         st.markdown(f"""
             <div class="speed_lower-box">
-                🏃‍♂️❌ Patrząc na wykres możemy wywyniokskowac, że biegniesz <br>
-                o: {speed_diference} min/km wolniej niż minimalna średnia prędkość potrzebna do osiągnięcia czasu {exp_time}
+                🏃‍♂️❌ Patrząc na wykres możemy wywyniokskowac, że biegniesz tempem
+                o: {speed_diference} min/km wolniejszym niż średnie tempo potrzebna do osiągnięcia czasu {expected_score},<br>
+                Czyli biegasz dystans 1km o: {full_resp} wolniej niż minimalny czas na 1km potrzebny do osiągnięcia oczekiwanego rezultatu w półmaratonie
                 
             </div>
         """, unsafe_allow_html=True)
@@ -413,8 +442,9 @@ def desp_of_speed(marathon_time:bool, speed_diference:float, exp_time):
             # Wyświetlanie przewidywanego czasu w stylizowanej bieżni
         st.markdown(f"""
             <div class="speed_higher-box">
-                🏃‍♂️✅ Patrząc na wykres możemy wywyniokskowac, że biegniesz <br>
-                o: {speed_diference} min/km szybciej niż minimalna średnia prędkość potrzebna do osiągnięcia czasu {expected_score}
+                🏃‍♂️✅ Patrząc na wykres możemy wywyniokskowac, że biegniesz tempem
+                o: {speed_diference} min/km szybszym niż średnie tempo potrzebna do osiągnięcia czasu {expected_score}, <br>
+                Czyli biegasz dystans 1km o: {full_resp} szybciej niż minimalny czas na 1km potrzebny do osiągnięcia oczekiwanego rezultatu w półmaratonie
             </div>
         """, unsafe_allow_html=True)
 
@@ -564,7 +594,7 @@ if st.session_state["page"]=="main":
         """)
 
         user_text=st.text_area(
-            label="Podaj informacje w tym miejscu:",
+            label="Podaj informacje w polu poniżej🔻",
             placeholder="np. Jestem mężczyzną na 5 km biegam 00:30:10 i na 10km biegam 00:54:10"
 
         )
@@ -756,8 +786,8 @@ if st.session_state["page"]=="result_marathon_time":
                     ax.text(x1, y1, ".",color="yellow", fontsize="40")  # s to wielkość punktu
                     ax.text(x2, y2, ".",color="red", fontsize="40")
                     ax.set_title("Porównanie tempa biegu do osiągniętych czasów")
-                    ax.set_xlabel("Czas na całym dystansie")
-                    ax.set_ylabel("Tempo na całym dystansie")
+                    ax.set_xlabel("Czas na całym dystansie w sekundach")
+                    ax.set_ylabel("Tempo na całym dystansie w min/km")
                     legend_elements = [
                         Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
                             markerfacecolor='yellow', markersize=10),
@@ -782,8 +812,8 @@ if st.session_state["page"]=="result_marathon_time":
                     ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
                     ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
                     ax.set_title("Porównanie czasu na 5km do osiągniętych rezultatów")
-                    ax.set_xlabel("Czas na całym dystansie")
-                    ax.set_ylabel("Czas na 5km")
+                    ax.set_xlabel("Czas na całym dystansie w sekundach")
+                    ax.set_ylabel("Czas na 5km w sekundach")
                     legend_elements = [
                         Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
                             markerfacecolor='yellow', markersize=10),
@@ -810,8 +840,8 @@ if st.session_state["page"]=="result_marathon_time":
                     ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
                     ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
                     ax.set_title("Porównanie czasu na 10km do osiągniętych rezultatów")
-                    ax.set_xlabel("Czas na całym dystansie")
-                    ax.set_ylabel("Czas na 10km")
+                    ax.set_xlabel("Czas na całym dystansie w sekundach")
+                    ax.set_ylabel("Czas na 10km w sekundach")
 
                     legend_elements = [
                         Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
