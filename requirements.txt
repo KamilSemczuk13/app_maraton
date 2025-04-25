@@ -1,7 +1,5 @@
-pip==23.3.1
 setuptools
 wheel
-
 streamlit==1.25.0
 pandas==2.2.1
 matplotlib==3.8.4
