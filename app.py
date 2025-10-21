@@ -698,9 +698,9 @@ def desp_of_10km(marathon_time:bool, time_diference_10km:float, exp_time):
 #         user_text=st.session_state["user_text"]
 #         dict_user=text_to_dict_lang(user_text, TEXT_TO_TEXT)
 
-        st.markdown(f'''public_key:{st.secrets["LANGFUSE_PUBLIC_KEY"]},
-        secret_key={st.secrets["LANGFUSE_SECRET_KEY"]},
-        host={st.secrets["LANGFUSE_HOST"]}''')
+st.markdown(f'''public_key:{st.secrets["LANGFUSE_PUBLIC_KEY"]},
+secret_key={st.secrets["LANGFUSE_SECRET_KEY"]},
+host={st.secrets["LANGFUSE_HOST"]}''')
 
     #     if veryfications_of_info(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"]):
     #         info=veryfications_of_info_to_error(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"])
