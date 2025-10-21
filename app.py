@@ -6,7 +6,7 @@ from io import BytesIO
 import instructor
 from pycaret.regression import load_model, predict_model
 from matplotlib.lines import Line2D
-from langfuse import Langfuse, Span, Trace
+from langfuse import Langfuse
 from openai import OpenAI
 from pydantic import BaseModel
 import boto3
@@ -162,29 +162,6 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         }
     ]
 
-    langfuse = Langfuse(
-        public_key=st.secrets["LANGFUSE_PUBLIC_KEY"],
-        secret_key=st.secrets["LANGFUSE_SECRET_KEY"],
-        host=st.secrets["LANGFUSE_HOST"]
-    )
-
-    try:
-        # Tworzymy trace
-        trace = Trace.create(
-            name="text_to_dict_lang",
-            input=prompt,
-            langfuse=langfuse
-        )
-
-        # Tworzymy span
-        span = Span.create(
-            name="text_to_dict_lang",
-            input=prompt,
-            langfuse=langfuse
-        )
-    except Exception as e:
-        st.error(f"Błąd w ładowniu langfuse, {e}")
-
     try:
         llm_client=llm_key_get()
         chat_completion = llm_client.chat.completions.create(
@@ -195,21 +172,10 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         )
         response=chat_completion.model_dump()
 
-        span.event(
-            name="llm_response",
-            input={"prompt": user_text},
-            output=response
-        )
-
-        return response
-
     except Exception as e:
-        span.event(
-            name="error",
-            output={"error": str(e)}
-        )
-        st.error(f"Błąd w LLM: {e}")
-    
+        st.error(f"Error in loading AI model, {e}")
+        st.stop()
+        st.rerun()
     return response
 
         
