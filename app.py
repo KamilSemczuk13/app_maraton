@@ -582,300 +582,304 @@ def desp_of_10km(marathon_time:bool, time_diference_10km:float, exp_time):
 ## MAIN
 #
 
-if st.session_state["page"]=="intro":
-    st.markdown('''
-                ## Witaj w aplikacji CheckYourTime⏱️
-                Przewidzimy dla ciebie jaki czas możesz osiągnac w półmaratonie''')
+# if st.session_state["page"]=="intro":
+#     st.markdown('''
+#                 ## Witaj w aplikacji CheckYourTime⏱️
+#                 Przewidzimy dla ciebie jaki czas możesz osiągnac w półmaratonie''')
     
-    if st.button("Kontunuuj"):
-        st.session_state["page"]="main"
-        st.rerun()
+#     if st.button("Kontunuuj"):
+#         st.session_state["page"]="main"
+#         st.rerun()
 
-if st.session_state["page"]=="main":
-    st.markdown("# CheckYourTime⏱️")
-    tab=st.selectbox("# Wybierz opcję, która cię interesuje", options=[USING_MODEL, SURVEY])
+# if st.session_state["page"]=="main":
+#     st.markdown("# CheckYourTime⏱️")
+#     tab=st.selectbox("# Wybierz opcję, która cię interesuje", options=[USING_MODEL, SURVEY])
 
-    if tab==USING_MODEL:
+#     if tab==USING_MODEL:
         
-        st.markdown("""
-        ### 📝 Podaj swoje dane.
+#         st.markdown("""
+#         ### 📝 Podaj swoje dane.
 
-        Wpisz poniżej w jednym tekście następujące informacje:
+#         Wpisz poniżej w jednym tekście następujące informacje:
 
-        - 🚻 Płeć   
-        - ⏱️ Czas biegu na **5 km** (np. 00:27:30) \n
-          🔸 Zakres: **00:17:00 – 00:39:00**
-        - ⏱️ Czas biegu na **10 km** (np. 1:00:00)\n
-          🔸 Zakres: **00:35:00 – 01:17:00**
+#         - 🚻 Płeć   
+#         - ⏱️ Czas biegu na **5 km** (np. 00:27:30) \n
+#           🔸 Zakres: **00:17:00 – 00:39:00**
+#         - ⏱️ Czas biegu na **10 km** (np. 1:00:00)\n
+#           🔸 Zakres: **00:35:00 – 01:17:00**
 
-        Na podstawie tego tekstu automatycznie wyciągniemy dane do analizy
-        """)
+#         Na podstawie tego tekstu automatycznie wyciągniemy dane do analizy
+#         """)
 
-        user_text=st.text_area(
-            label="Podaj informacje w polu poniżej🔻",
-            placeholder="np. Jestem mężczyzną na 5 km biegam 00:30:10 i na 10km biegam 00:54:10"
+#         user_text=st.text_area(
+#             label="Podaj informacje w polu poniżej🔻",
+#             placeholder="np. Jestem mężczyzną na 5 km biegam 00:30:10 i na 10km biegam 00:54:10"
 
-        )
-        st.session_state["user_text"]=user_text
+#         )
+#         st.session_state["user_text"]=user_text
 
-        #user_info,placeholder, label="Powiedz coś o sobie"
-        st.info("Jeżeli jesteś zadowolony/a z podanych przez ciebie informacji naciśnij zatwierdź ✅")
-        if st.button("Zatwierdź"):
-            st.session_state["is_ok_clicked"]=False
-            st.session_state["page"]="confirm"
-            st.rerun()
+#         #user_info,placeholder, label="Powiedz coś o sobie"
+#         st.info("Jeżeli jesteś zadowolony/a z podanych przez ciebie informacji naciśnij zatwierdź ✅")
+#         if st.button("Zatwierdź"):
+#             st.session_state["is_ok_clicked"]=False
+#             st.session_state["page"]="confirm"
+#             st.rerun()
         
 
 
-    if tab==SURVEY:
-        st.markdown("## Wypełnij ankietę, pamiętaj żeby wypełnić każdą komórkę 📝")
+#     if tab==SURVEY:
+#         st.markdown("## Wypełnij ankietę, pamiętaj żeby wypełnić każdą komórkę 📝")
 
-        # date_of_birth=st.text_input("Podaj datę urodzenia 🎂")
-        # st.session_state["date_of_birth"]=date_of_birth
+#         # date_of_birth=st.text_input("Podaj datę urodzenia 🎂")
+#         # st.session_state["date_of_birth"]=date_of_birth
 
-        sex=st.radio("Podaj płeć",["Mężczyzna 👨", "Kobieta 👩"])
-        sex =1 if sex =="Mężczyzna 👨" else 0
-        st.session_state["sex"]=sex
+#         sex=st.radio("Podaj płeć",["Mężczyzna 👨", "Kobieta 👩"])
+#         sex =1 if sex =="Mężczyzna 👨" else 0
+#         st.session_state["sex"]=sex
 
-        time_5km = st.text_input(
-            "⏱️ Podaj swój czas na 5 km \n 🔸 Zakres: **00:17:00 – 00:39:00**",
-            placeholder="np. 00:36:22"
-            )
+#         time_5km = st.text_input(
+#             "⏱️ Podaj swój czas na 5 km \n 🔸 Zakres: **00:17:00 – 00:39:00**",
+#             placeholder="np. 00:36:22"
+#             )
 
-        st.session_state["time_5km"]=time_5km
+#         st.session_state["time_5km"]=time_5km
 
-        time_10km=st.text_input(" ⏱️ Podaj twój czas na 10km \n 🔸 Zakres: **00:35:00 – 01:17:00** " \
-        "", placeholder="np. 00:55:22")
-        st.session_state["time_10km"]=time_10km
+#         time_10km=st.text_input(" ⏱️ Podaj twój czas na 10km \n 🔸 Zakres: **00:35:00 – 01:17:00** " \
+#         "", placeholder="np. 00:55:22")
+#         st.session_state["time_10km"]=time_10km
 
 
-        st.info("Jeżeli jesteś zadowolony/a z podanych przez ciebie informacji naciśnij zatwierdź ✅")
-        if st.button("Zatwierdź"):
-            st.session_state["is_ok_clicked"]=False
-            st.session_state["page"]="confirm"
-            st.rerun()
+#         st.info("Jeżeli jesteś zadowolony/a z podanych przez ciebie informacji naciśnij zatwierdź ✅")
+#         if st.button("Zatwierdź"):
+#             st.session_state["is_ok_clicked"]=False
+#             st.session_state["page"]="confirm"
+#             st.rerun()
 
-if st.session_state["page"] == "confirm":
-    st.markdown("### Chcesz sprawdzić, jak Twój wymarzony czas w półmaratonie wypada na tle naszego przewidywanego wyniku?")
-    st.markdown("##### Wpisz czas jaki chcesz osiągnąć w poniższym polu i wciśnij Zatwierdź ✅")
+# if st.session_state["page"] == "confirm":
+#     st.markdown("### Chcesz sprawdzić, jak Twój wymarzony czas w półmaratonie wypada na tle naszego przewidywanego wyniku?")
+#     st.markdown("##### Wpisz czas jaki chcesz osiągnąć w poniższym polu i wciśnij Zatwierdź ✅")
 
-    expected_score=st.text_input("Podaj czas, w jakim chciałbyś przebiec półmaraton⏱️", placeholder="np. 01:30:22")
-    st.session_state["time_half_maraton"]=expected_score
-    col1, col2,col3, col4,col5, col6 = st.columns(6)
-    with col5:
-        if st.button("Pomiń"):
-            st.session_state["time_half_maraton"]=0
-            st.session_state["page"]="result_marathon_time"
-            st.rerun()
-    with col6:
-        if st.button("Zatwierdź"):
-            st.session_state["is_ok_clicked"]=True
-    if st.session_state["is_ok_clicked"]==True:
-        if st.session_state["time_half_maraton"]:
+#     expected_score=st.text_input("Podaj czas, w jakim chciałbyś przebiec półmaraton⏱️", placeholder="np. 01:30:22")
+#     st.session_state["time_half_maraton"]=expected_score
+#     col1, col2,col3, col4,col5, col6 = st.columns(6)
+#     with col5:
+#         if st.button("Pomiń"):
+#             st.session_state["time_half_maraton"]=0
+#             st.session_state["page"]="result_marathon_time"
+#             st.rerun()
+#     with col6:
+#         if st.button("Zatwierdź"):
+#             st.session_state["is_ok_clicked"]=True
+#     if st.session_state["is_ok_clicked"]==True:
+#         if st.session_state["time_half_maraton"]:
 
-            if time_to_sec(st.session_state["time_half_maraton"])==0:
-                st.info("Sprawdź czy podałeś prawidłowe informacje o oczekiwanym rezultacie i czy są w odpowiednim formacie")
-                st.stop()
-            else:
-                st.session_state["page"]="result_marathon_time"
-                st.rerun()
-        else:
-            if  st.session_state["is_ok_clicked"]==True:
-                st.info("Sprawdź czy podałeś prawidłowe informacje o oczekiwanym rezultacie i czy są w odpowiednim formacie")
-                st.stop()
+#             if time_to_sec(st.session_state["time_half_maraton"])==0:
+#                 st.info("Sprawdź czy podałeś prawidłowe informacje o oczekiwanym rezultacie i czy są w odpowiednim formacie")
+#                 st.stop()
+#             else:
+#                 st.session_state["page"]="result_marathon_time"
+#                 st.rerun()
+#         else:
+#             if  st.session_state["is_ok_clicked"]==True:
+#                 st.info("Sprawdź czy podałeś prawidłowe informacje o oczekiwanym rezultacie i czy są w odpowiednim formacie")
+#                 st.stop()
             
-if st.session_state["page"]=="result_marathon_time":
-    if st.button("Wróć"):
-        st.session_state["page"]="main"
-        st.rerun()
-    st.markdown("## 🏁 Twój przewidywany czas półmaratonu: ")
-    st.write("---")  # linia oddzielająca
-    user_text=st.session_state["user_text"]
+# if st.session_state["page"]=="result_marathon_time":
+#     if st.button("Wróć"):
+#         st.session_state["page"]="main"
+#         st.rerun()
+#     st.markdown("## 🏁 Twój przewidywany czas półmaratonu: ")
+#     st.write("---")  # linia oddzielająca
+#     user_text=st.session_state["user_text"]
     
-    if st.session_state["user_text"]!="":
-        next=False
+#     if st.session_state["user_text"]!="":
+#         next=False
 
-        user_text=st.session_state["user_text"]
-        dict_user=text_to_dict_lang(user_text, TEXT_TO_TEXT)
+#         user_text=st.session_state["user_text"]
+#         dict_user=text_to_dict_lang(user_text, TEXT_TO_TEXT)
 
-        if veryfications_of_info(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"]):
-            info=veryfications_of_info_to_error(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"])
-            st.info(info)
-            st.stop()
-            st.session_state["page"]="main"
-            st.rerun()
+        st.markdown(f'''public_key:{st.secrets["LANGFUSE_PUBLIC_KEY"]},
+        secret_key={st.secrets["LANGFUSE_SECRET_KEY"]},
+        host={st.secrets["LANGFUSE_HOST"]}''')
 
-        st.session_state["sex"]=dict_user["sex"]
-        st.session_state["time_5km"]=dict_user["time_5km"]
-        st.session_state["time_10km"]=dict_user["time_10km"]
-        next=True
-    next=True
-    if next==True:
+    #     if veryfications_of_info(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"]):
+    #         info=veryfications_of_info_to_error(dict_user["sex"], dict_user["time_5km"], dict_user["time_10km"])
+    #         st.info(info)
+    #         st.stop()
+    #         st.session_state["page"]="main"
+    #         st.rerun()
+
+    #     st.session_state["sex"]=dict_user["sex"]
+    #     st.session_state["time_5km"]=dict_user["time_5km"]
+    #     st.session_state["time_10km"]=dict_user["time_10km"]
+    #     next=True
+    # next=True
+    # if next==True:
        
-        if time_to_sec(st.session_state["time_5km"])==0 or time_to_sec(st.session_state["time_10km"])==0:
-            st.info("Sprawdź czy podałeś wszytskie informacje lub czy podałeś je w dobrym formacie")
-            st.stop()
-            st.session_state["page"]="main"
-            st.rerun()
-        # sex=st.session_state["sex"]
-        df=pd.DataFrame(
-        [
-            {
-             "sex":st.session_state["sex"],
-             "time_5km": time_to_sec(st.session_state["time_5km"]),
-             "time_10km":time_to_sec(st.session_state["time_10km"]),
-            }
-        ])
+    #     if time_to_sec(st.session_state["time_5km"])==0 or time_to_sec(st.session_state["time_10km"])==0:
+    #         st.info("Sprawdź czy podałeś wszytskie informacje lub czy podałeś je w dobrym formacie")
+    #         st.stop()
+    #         st.session_state["page"]="main"
+    #         st.rerun()
 
-        schema=pa.DataFrameSchema(
-            {
-             "sex":pa.Column(int),
-             "time_5km": pa.Column(int ,pa.Check.in_range(1030,2350)),
-             "time_10km":pa.Column(int, pa.Check.in_range(2100,4620)),
-            }
-        )
+    #     df=pd.DataFrame(
+    #     [
+    #         {
+    #          "sex":st.session_state["sex"],
+    #          "time_5km": time_to_sec(st.session_state["time_5km"]),
+    #          "time_10km":time_to_sec(st.session_state["time_10km"]),
+    #         }
+    #     ])
 
-        try:
-            schema.validate(df)
-        except:
-            st.info("Podaj prawidłowe informacje, stosując również przedstawione zakresy czasowe")
-            st.stop()
+    #     schema=pa.DataFrameSchema(
+    #         {
+    #          "sex":pa.Column(int),
+    #          "time_5km": pa.Column(int ,pa.Check.in_range(1030,2350)),
+    #          "time_10km":pa.Column(int, pa.Check.in_range(2100,4620)),
+    #         }
+    #     )
 
-        model = get_pipeline_model()
+    #     try:
+    #         schema.validate(df)
+    #     except:
+    #         st.info("Podaj prawidłowe informacje, stosując również przedstawione zakresy czasowe")
+    #         st.stop()
 
-        # przewidujemy tylko dla JEDNEGO wiersza
-        pred_df = predict_model(model, data=df)
+    #     model = get_pipeline_model()
 
-        # pobieramy dokładnie jedną wartość z prediction_label
-        pred_seconds = round(pred_df["prediction_label"].iloc[0])  # np. 3874.23
+    #     # przewidujemy tylko dla JEDNEGO wiersza
+    #     pred_df = predict_model(model, data=df)
 
-        # zamieniamy na czytelny format czasu
-        converted_time = sec_to_time(pred_seconds)  # np. "1:04:34"
+    #     # pobieramy dokładnie jedną wartość z prediction_label
+    #     pred_seconds = round(pred_df["prediction_label"].iloc[0])  # np. 3874.23
 
-        # wyświetlamy
-       # CSS + HTML
+    #     # zamieniamy na czytelny format czasu
+    #     converted_time = sec_to_time(pred_seconds)  # np. "1:04:34"
 
-        time_pred(converted_time)
+    #     # wyświetlamy
+    #    # CSS + HTML
+
+    #     time_pred(converted_time)
         
-        expected_score=st.session_state["time_half_maraton"]
-        if expected_score !=0:
-            time_exp_user(expected_score)
-            try:
-                expected_time=time_to_sec(expected_score)
-                # st.markdown(expected_time)
-                # st.markdown(pred_seconds)
-            except:
-                st.error("Błąd sprubuj ponownie")
+    #     expected_score=st.session_state["time_half_maraton"]
+    #     if expected_score !=0:
+    #         time_exp_user(expected_score)
+    #         try:
+    #             expected_time=time_to_sec(expected_score)
+    #             # st.markdown(expected_time)
+    #             # st.markdown(pred_seconds)
+    #         except:
+    #             st.error("Błąd sprubuj ponownie")
             
-            if pred_seconds>expected_time:
-                marathon_time_bool=True
-            else:
-                marathon_time_bool=False
+    #         if pred_seconds>expected_time:
+    #             marathon_time_bool=True
+    #         else:
+    #             marathon_time_bool=False
 
-            time_diff=int(abs(pred_seconds-expected_time))
-            description_of_score(marathon_time_bool,time_diff)
+    #         time_diff=int(abs(pred_seconds-expected_time))
+    #         description_of_score(marathon_time_bool,time_diff)
 
-            df_data=get_compare_data()
+    #         df_data=get_compare_data()
 
-            vis_df=df_data[df_data["sex"]==st.session_state["sex"]]
+    #         vis_df=df_data[df_data["sex"]==st.session_state["sex"]]
 
-            df_model=vis_df[(vis_df["time"]>= pred_seconds - 50) & (vis_df["time"]<=pred_seconds +50)]
-            chceck_df=vis_df[(vis_df["time"]>= expected_time - 50) & (vis_df["time"]<=expected_time +50)]
+    #         df_model=vis_df[(vis_df["time"]>= pred_seconds - 50) & (vis_df["time"]<=pred_seconds +50)]
+    #         chceck_df=vis_df[(vis_df["time"]>= expected_time - 50) & (vis_df["time"]<=expected_time +50)]
 
 
-            if chceck_df.shape[0] >= 1 and df_model.shape[0] >= 1:
+    #         if chceck_df.shape[0] >= 1 and df_model.shape[0] >= 1:
 
-                exp_t_model=df_model.iloc[0]
-                exp_time=chceck_df.iloc[0]
-                #st.dataframe(exp_time)
-                st.markdown("# Możesz sprawdzić swoje wyniki na wykresach poniżej 📈 🔻")
-                with st.expander("Sprawdź swoje wyniki na wykresach 📈"):
-                    fig, ax = plt.subplots(1, 1, figsize=(8, 4))  # szeroki, ale nie za wysoki
-                    ax.plot(vis_df["time"], vis_df["tempo"])
-                    # Punkty start i koniec
-                    x1, y1 = exp_time["time"], exp_time["tempo"]
-                    x2, y2 = pred_seconds,exp_t_model["tempo"]
-                    # Dodanie strzałki
-                    ax.annotate("",
-                        xy=(x1, y1), xytext=(x2, y2),
-                        arrowprops=dict(arrowstyle="->", color="black", lw=2)
-                    )
-                    # st.pyplot(fig)
-                    ax.text(x1, y1, ".",color="yellow", fontsize="40")  # s to wielkość punktu
-                    ax.text(x2, y2, ".",color="red", fontsize="40")
-                    ax.set_title("Porównanie tempa biegu do osiągniętych czasów")
-                    ax.set_xlabel("Czas na całym dystansie w sekundach")
-                    ax.set_ylabel("Tempo na całym dystansie w min/km")
-                    legend_elements = [
-                        Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
-                            markerfacecolor='yellow', markersize=10),
-                        Line2D([0], [0], marker='o', color='w', label='Twój wynik (czerwona kropka)',
-                            markerfacecolor='red', markersize=10)
-                    ]
-                    ax.legend(handles=legend_elements)
-                    st.pyplot(fig)
+    #             exp_t_model=df_model.iloc[0]
+    #             exp_time=chceck_df.iloc[0]
+    #             #st.dataframe(exp_time)
+    #             st.markdown("# Możesz sprawdzić swoje wyniki na wykresach poniżej 📈 🔻")
+    #             with st.expander("Sprawdź swoje wyniki na wykresach 📈"):
+    #                 fig, ax = plt.subplots(1, 1, figsize=(8, 4))  # szeroki, ale nie za wysoki
+    #                 ax.plot(vis_df["time"], vis_df["tempo"])
+    #                 # Punkty start i koniec
+    #                 x1, y1 = exp_time["time"], exp_time["tempo"]
+    #                 x2, y2 = pred_seconds,exp_t_model["tempo"]
+    #                 # Dodanie strzałki
+    #                 ax.annotate("",
+    #                     xy=(x1, y1), xytext=(x2, y2),
+    #                     arrowprops=dict(arrowstyle="->", color="black", lw=2)
+    #                 )
+    #                 # st.pyplot(fig)
+    #                 ax.text(x1, y1, ".",color="yellow", fontsize="40")  # s to wielkość punktu
+    #                 ax.text(x2, y2, ".",color="red", fontsize="40")
+    #                 ax.set_title("Porównanie tempa biegu do osiągniętych czasów")
+    #                 ax.set_xlabel("Czas na całym dystansie w sekundach")
+    #                 ax.set_ylabel("Tempo na całym dystansie w min/km")
+    #                 legend_elements = [
+    #                     Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
+    #                         markerfacecolor='yellow', markersize=10),
+    #                     Line2D([0], [0], marker='o', color='w', label='Twój wynik (czerwona kropka)',
+    #                         markerfacecolor='red', markersize=10)
+    #                 ]
+    #                 ax.legend(handles=legend_elements)
+    #                 st.pyplot(fig)
                     
-                    speed_diff=(abs(exp_t_model["tempo"]-exp_time["tempo"])).round(2)
-                    desp_of_speed(marathon_time_bool, speed_diff,expected_score)
+    #                 speed_diff=(abs(exp_t_model["tempo"]-exp_time["tempo"])).round(2)
+    #                 desp_of_speed(marathon_time_bool, speed_diff,expected_score)
                     
-                    fig, ax=plt.subplots(1,1, figsize=(8,4))
-                    ax.plot(vis_df["time"], vis_df["time_5km"])
-                    x1_2, y1_2 = exp_time["time"], exp_time["time_5km"]
-                    x2_2, y2_2 = pred_seconds,exp_t_model["time_5km"]
-                    ax.annotate("",
-                        xy=(x1_2, y1_2), xytext=(x2_2, y2_2),
-                        arrowprops=dict(arrowstyle="->", color="black", lw=2)
-                    )
-                    ax.text(x1_2, y1_2, ".",color="yellow", fontsize="40")  # s to wielkość punktu
-                    ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
-                    ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
-                    ax.set_title("Porównanie czasu na 5km do osiągniętych rezultatów")
-                    ax.set_xlabel("Czas na całym dystansie w sekundach")
-                    ax.set_ylabel("Czas na 5km w sekundach")
-                    legend_elements = [
-                        Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
-                            markerfacecolor='yellow', markersize=10),
-                        Line2D([0], [0], marker='o', color='w', label='Twój wynik (czerwona kropka)',
-                            markerfacecolor='red', markersize=10)
-                    ]
-                    ax.legend(handles=legend_elements)
+    #                 fig, ax=plt.subplots(1,1, figsize=(8,4))
+    #                 ax.plot(vis_df["time"], vis_df["time_5km"])
+    #                 x1_2, y1_2 = exp_time["time"], exp_time["time_5km"]
+    #                 x2_2, y2_2 = pred_seconds,exp_t_model["time_5km"]
+    #                 ax.annotate("",
+    #                     xy=(x1_2, y1_2), xytext=(x2_2, y2_2),
+    #                     arrowprops=dict(arrowstyle="->", color="black", lw=2)
+    #                 )
+    #                 ax.text(x1_2, y1_2, ".",color="yellow", fontsize="40")  # s to wielkość punktu
+    #                 ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
+    #                 ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
+    #                 ax.set_title("Porównanie czasu na 5km do osiągniętych rezultatów")
+    #                 ax.set_xlabel("Czas na całym dystansie w sekundach")
+    #                 ax.set_ylabel("Czas na 5km w sekundach")
+    #                 legend_elements = [
+    #                     Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
+    #                         markerfacecolor='yellow', markersize=10),
+    #                     Line2D([0], [0], marker='o', color='w', label='Twój wynik (czerwona kropka)',
+    #                         markerfacecolor='red', markersize=10)
+    #                 ]
+    #                 ax.legend(handles=legend_elements)
                     
-                    st.pyplot(fig)
+    #                 st.pyplot(fig)
                     
-                    time_5km_diff=int((abs(exp_t_model["time_5km"]-exp_time["time_5km"])))
-                    desp_of_5km(marathon_time_bool, time_5km_diff,expected_score)
+    #                 time_5km_diff=int((abs(exp_t_model["time_5km"]-exp_time["time_5km"])))
+    #                 desp_of_5km(marathon_time_bool, time_5km_diff,expected_score)
                    
 
-                    fig, ax=plt.subplots(1,1, figsize=(8,4))
-                    ax.plot(vis_df["time"], vis_df["time_10km"])
-                    x1_2, y1_2 = exp_time["time"], exp_time["time_10km"]
-                    x2_2, y2_2 = pred_seconds,exp_t_model["time_10km"]
-                    ax.annotate("",
-                        xy=(x1_2, y1_2), xytext=(x2_2, y2_2),
-                        arrowprops=dict(arrowstyle="->", color="black", lw=2)
-                    )
-                    ax.text(x1_2, y1_2, ".",color="yellow", fontsize="40")  # s to wielkość punktu
-                    ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
-                    ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
-                    ax.set_title("Porównanie czasu na 10km do osiągniętych rezultatów")
-                    ax.set_xlabel("Czas na całym dystansie w sekundach")
-                    ax.set_ylabel("Czas na 10km w sekundach")
+    #                 fig, ax=plt.subplots(1,1, figsize=(8,4))
+    #                 ax.plot(vis_df["time"], vis_df["time_10km"])
+    #                 x1_2, y1_2 = exp_time["time"], exp_time["time_10km"]
+    #                 x2_2, y2_2 = pred_seconds,exp_t_model["time_10km"]
+    #                 ax.annotate("",
+    #                     xy=(x1_2, y1_2), xytext=(x2_2, y2_2),
+    #                     arrowprops=dict(arrowstyle="->", color="black", lw=2)
+    #                 )
+    #                 ax.text(x1_2, y1_2, ".",color="yellow", fontsize="40")  # s to wielkość punktu
+    #                 ax.text(x2_2, y2_2, ".",color="red", fontsize="40")
+    #                 ax.set_xlim(min(vis_df["time"].min(), x1_2, x2_2) - 10, max(vis_df["time"].max(), x1_2, x2_2) + 10)
+    #                 ax.set_title("Porównanie czasu na 10km do osiągniętych rezultatów")
+    #                 ax.set_xlabel("Czas na całym dystansie w sekundach")
+    #                 ax.set_ylabel("Czas na 10km w sekundach")
 
-                    legend_elements = [
-                        Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
-                            markerfacecolor='yellow', markersize=10),
-                        Line2D([0], [0], marker='o', color='w', label='Twój wynik (czerwona kropka)',
-                            markerfacecolor='red', markersize=10)
-                    ]
-                    ax.legend(handles=legend_elements)
+    #                 legend_elements = [
+    #                     Line2D([0], [0], marker='o', color='w', label='Wynik jaki chcesz osiągnąć (żółta kropka)',
+    #                         markerfacecolor='yellow', markersize=10),
+    #                     Line2D([0], [0], marker='o', color='w', label='Twój wynik (czerwona kropka)',
+    #                         markerfacecolor='red', markersize=10)
+    #                 ]
+    #                 ax.legend(handles=legend_elements)
                     
-                    st.pyplot(fig)
+    #                 st.pyplot(fig)
 
-                    time_10km_diff=int((abs(exp_t_model["time_10km"]-exp_time["time_10km"])))
-                    desp_of_10km(marathon_time_bool, time_10km_diff,expected_score)
+    #                 time_10km_diff=int((abs(exp_t_model["time_10km"]-exp_time["time_10km"])))
+    #                 desp_of_10km(marathon_time_bool, time_10km_diff,expected_score)
 
-            else:
-                st.info("Nie jesteśmy w stanie porównać twoich wyników do innych")
+    #         else:
+    #             st.info("Nie jesteśmy w stanie porównać twoich wyników do innych")
         
 
 
