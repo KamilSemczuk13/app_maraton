@@ -6,8 +6,9 @@ from io import BytesIO
 import instructor
 from pycaret.regression import load_model, predict_model
 from matplotlib.lines import Line2D
-from langfuse.decorators import observe
-from langfuse.openai import BaseModel, OpenAI
+from langfuse import Langfuse
+from openai import OpenAI
+from pydantic import BaseModel
 import boto3
 import joblib
 from io import BytesIO, StringIO
@@ -53,7 +54,17 @@ if "is_ok_clicked" not in st.session_state:
     st.session_state["is_ok_clicked"]=False
 # Functions
 
-# OEPENAI LANGFUSE
+# LANFGFUSE
+
+def get_langfuse_key():
+    langfuse = Langfuse(
+        public_key=st.secrets["LANGFUSE_PUBLIC_KEY"],
+        secret_key=st.secrets["LANGFUSE_SECRET_KEY"],
+        host=st.secrets["LANGFUSE_HOST"]
+    )
+    return langfuse
+
+# OEPENAI
 def llm_key_get():
     api_client=OpenAI(api_key=st.secrets("OPENAI_API_KEY"))
     llm_key=instructor.from_openai(client=api_client)
@@ -120,7 +131,6 @@ class UserInfo(BaseModel):
     time_5km:str
     time_10km:str
 
-@observe
 def text_to_dict_lang(prompt,model) -> UserInfo:
     system_content='''
             Jesteś specjalistą w szukaniu informacji w tekście dotyczących użytkownika 
@@ -160,6 +170,11 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
             "content":prompt
         }
     ]
+    
+    langfuse=get_langfuse_key()
+    trace = langfuse.trace(name="text_to_dict_lang", user_id="szwemcz")
+    span = trace.span(name="openai_call")
+
 
     try:
         llm_client=llm_key_get()
@@ -170,9 +185,20 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         response_format={"type": "json_object"}
         )
         response=chat_completion.model_dump()
+
+        span.event(
+            name="llm_response",
+            input={"prompt": prompt, "model": model},
+            output=response
+        )
         
     except Exception as e:
-        raise e
+        st.error("Błąd ładownia modelu, ", e)
+        st.stop()
+        st.rerun()
+    
+    span.end()
+    trace.end()
     return response
 
         
