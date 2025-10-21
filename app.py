@@ -194,7 +194,7 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         response=chat_completion.model_dump()
 
         # Event zamiast span.event()
-        langfuse.event.create(
+        trace.event.create(
             trace_id=trace.id,
             span_id=span.id,
             name="llm_response",
@@ -205,7 +205,7 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
     except Exception as e:
         st.markdown(f"Błąd ładownia modelu AI, {e}")
 
-        langfuse.event.create(
+        trace.event.create(
             trace_id=trace.id,
             span_id=span.id,
             name="error",
