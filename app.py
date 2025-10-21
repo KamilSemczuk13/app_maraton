@@ -168,9 +168,20 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         host=st.secrets["LANGFUSE_HOST"]
     )
 
-    trace = langfuse.trace(name="text_to_dict_lang")
-    span = trace.span(name="openai_call")
+    try:
+        # Tworzymy trace
+        trace = langfuse.trace.create(
+            name="text_to_dict_lang",
+            input=user_text
+        )
 
+        # Tworzymy span
+        span = langfuse.span.create(
+            trace_id=trace.id,
+            name="openai_call"
+        )
+    except Exception as e:
+        st.error("Błąd w ładowniu langfuse, ",e)
 
     try:
         llm_client=llm_key_get()
@@ -182,18 +193,25 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         )
         response=chat_completion.model_dump()
 
-        span.event(
+        # Event zamiast span.event()
+        langfuse.event.create(
+            trace_id=trace.id,
+            span_id=span.id,
             name="llm_response",
-            input={"prompt": prompt, "model": model},
+            input={"prompt": prompt, "model": "gpt-4o"},
             output=response
         )
-        
+
     except Exception as e:
-        st.error("Błąd ładownia modelu, ", e)
-        st.stop()
-        st.rerun()
+        st.markdown("Błąd ładownia modelu AI, ", e)
+
+        langfuse.event.create(
+            trace_id=trace.id,
+            span_id=span.id,
+            name="error",
+            output={"error": str(e)}
+        )
     
-    span.end()
     return response
 
         
