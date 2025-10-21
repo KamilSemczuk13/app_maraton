@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import os
 from io import BytesIO
-from dotenv import load_dotenv, dotenv_values
 import instructor
 from pycaret.regression import load_model, predict_model
 from matplotlib.lines import Line2D
@@ -15,7 +14,6 @@ from io import BytesIO, StringIO
 import datetime
 import pandera as pa
 
-load_dotenv()
 
 # Tabs
 USING_MODEL="Opisz siebie i swoje wyniki sportowe, aby przewidzieć twój czas w półmaratonie✍️"
@@ -57,8 +55,7 @@ if "is_ok_clicked" not in st.session_state:
 
 # OEPENAI LANGFUSE
 def llm_key_get():
-    env=dotenv_values(".env")
-    api_client=OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    api_client=OpenAI(api_key=st.secrets("OPENAI_API_KEY"))
     llm_key=instructor.from_openai(client=api_client)
     return llm_key
 
@@ -69,10 +66,10 @@ def get_client():
     try:
         client=session.client(
             's3',
-            region_name=os.environ.get("REGION_NAME"),
-            endpoint_url=os.environ.get("ENPOINT_URL_KEY"),  # zmień na swoje
-            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
+            region_name=st.secrets("REGION_NAME"),
+            endpoint_url=st.secrets("ENPOINT_URL_KEY"),  # zmień na swoje
+            aws_access_key_id=st.secrets("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=st.secrets("AWS_SECRET_ACCESS_KEY")
         )
     except:
         st.error("Błąd wczytywania danych spróbuj ponownie")
@@ -84,8 +81,8 @@ def get_compare_data():
     client=get_client()
     try:
         response=client.get_object(
-            Bucket=os.environ.get("BUCKET"),
-            Key=os.environ.get("FILE_MARATON_DATA")
+            Bucket=st.secrets("BUCKET"),
+            Key=st.secrets("MARATON_DATA")
         )
 
         stream = response["Body"]
@@ -102,15 +99,15 @@ def get_pipeline_model():
 
     try:
         response = client.get_object(
-        Bucket=os.environ.get("BUCKET"),
-        Key=os.environ.get("FILE_MARATON_MODEL")
+        Bucket=st.secrets("BUCKET"),
+        Key=st.secrets("MARATON_MODEL")
     )
 
-        model_buffer = BytesIO(response["Body"].read())   # ⬅️ NIE dekodujemy!
+        model_buffer = BytesIO(response["Body"].read())
         model_buffer.seek(0)
 
-        # 3️⃣ Załaduj model (PyCaret to zwykły pickle/joblib)
-        model = joblib.load(model_buffer)   # lub   model = pickle.load(model_buffer)
+        # Load model
+        model = joblib.load(model_buffer)
 
     except:
         st.error("Błąd wczytywania danych modelu spróbuj ponownie")
@@ -125,7 +122,6 @@ class UserInfo(BaseModel):
 
 @observe
 def text_to_dict_lang(prompt,model) -> UserInfo:
-    # langfuse=langfuse_trace()
     system_content='''
             Jesteś specjalistą w szukaniu informacji w tekście dotyczących użytkownika 
 
