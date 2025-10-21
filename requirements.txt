@@ -4,7 +4,7 @@ matplotlib
 python-dotenv
 instructor
 pycaret
-git+https://github.com/langfuse/langfuse-python@v3.16.5
+git+https://github.com/langfuse/langfuse-python@main
 boto3
 joblib
 pandera
