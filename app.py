@@ -181,7 +181,7 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
             name="openai_call"
         )
     except Exception as e:
-        st.error("Błąd w ładowniu langfuse, ",e)
+        st.error(f"Błąd w ładowniu langfuse, {e}")
 
     try:
         llm_client=llm_key_get()
@@ -203,7 +203,7 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         )
 
     except Exception as e:
-        st.markdown("Błąd ładownia modelu AI, ", e)
+        st.markdown(f"Błąd ładownia modelu AI, {e}")
 
         langfuse.event.create(
             trace_id=trace.id,
