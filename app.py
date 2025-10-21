@@ -6,7 +6,7 @@ from io import BytesIO
 import instructor
 from pycaret.regression import load_model, predict_model
 from matplotlib.lines import Line2D
-from langfuse import Langfuse
+from langfuse import Langfuse, Span, Trace
 from openai import OpenAI
 from pydantic import BaseModel
 import boto3
@@ -170,15 +170,17 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
 
     try:
         # Tworzymy trace
-        trace = langfuse.trace.create(
+        trace = Trace.create(
             name="text_to_dict_lang",
-            input=user_text
+            input=prompt,
+            langfuse=langfuse
         )
 
         # Tworzymy span
-        span = langfuse.span.create(
-            trace_id=trace.id,
-            name="openai_call"
+        span = Span.create(
+            name="text_to_dict_lang",
+            input=prompt,
+            langfuse=langfuse
         )
     except Exception as e:
         st.error(f"Błąd w ładowniu langfuse, {e}")
@@ -193,24 +195,20 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
         )
         response=chat_completion.model_dump()
 
-        # Event zamiast span.event()
-        trace.event.create(
-            trace_id=trace.id,
-            span_id=span.id,
+        span.event(
             name="llm_response",
-            input={"prompt": prompt, "model": "gpt-4o"},
+            input={"prompt": user_text},
             output=response
         )
 
-    except Exception as e:
-        st.markdown(f"Błąd ładownia modelu AI, {e}")
+        return response
 
-        trace.event.create(
-            trace_id=trace.id,
-            span_id=span.id,
+    except Exception as e:
+        span.event(
             name="error",
             output={"error": str(e)}
         )
+        st.error(f"Błąd w LLM: {e}")
     
     return response
 
