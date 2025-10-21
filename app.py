@@ -163,11 +163,11 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
     ]
 
     langfuse= Langfuse(
-        public_key=st.secrets["LANGFUSE_PUBLIC_KEY"],
-        secret_key=st.secrets["LANGFUSE_SECRET_KEY"],
-        host=st.secrets["LANGFUSE_HOST"]
+        public_key=st.secrets("LANGFUSE_PUBLIC_KEY"),
+        secret_key=st.secrets("LANGFUSE_SECRET_KEY"),
+        host=st.secrets("LANGFUSE_HOST")
     )
-    
+
     trace = langfuse.trace(name="text_to_dict_lang")
     span = trace.span(name="openai_call")
 
