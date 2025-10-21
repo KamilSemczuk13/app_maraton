@@ -70,7 +70,7 @@ def get_client():
         client=session.client(
             's3',
             region_name=st.secrets["REGION_NAME"],
-            endpoint_url=st.secrets["ENPOINT_URL_KEY"],  # zmień na swoje
+            endpoint_url=st.secrets["ENDPOINT_URL_KEY"],  # zmień na swoje
             aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"]
         )
