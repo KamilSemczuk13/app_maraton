@@ -57,12 +57,11 @@ if "is_ok_clicked" not in st.session_state:
 # LANFGFUSE
 
 def get_langfuse_key():
-    langfuse = Langfuse(
+    return Langfuse(
         public_key=st.secrets["LANGFUSE_PUBLIC_KEY"],
         secret_key=st.secrets["LANGFUSE_SECRET_KEY"],
         host=st.secrets["LANGFUSE_HOST"]
     )
-    return langfuse
 
 # OEPENAI
 def llm_key_get():
@@ -170,9 +169,9 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
             "content":prompt
         }
     ]
-    
+
     langfuse=get_langfuse_key()
-    trace = langfuse.trace(name="text_to_dict_lang", user_id="szwemcz")
+    trace = langfuse.trace(name="text_to_dict_lang")
     span = trace.span(name="openai_call")
 
 
