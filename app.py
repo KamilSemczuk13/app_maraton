@@ -92,8 +92,8 @@ def get_compare_data():
         body = stream.read()
         csv_buffer = BytesIO(body)
         df = pd.read_csv(csv_buffer, sep=";")
-    except:
-        st.error("Błąd wczytywania danych spróbuj ponownie")
+    except Exception as e:
+        st.error(f"Błąd wczytywania danych spróbuj ponownie, {e}")
         st.stop()
     return df
 
