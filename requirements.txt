@@ -4,7 +4,7 @@ matplotlib
 python-dotenv
 instructor
 pycaret
-langfuse
+langfuse==3.6.1
 boto3
 joblib
 pandera
