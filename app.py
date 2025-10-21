@@ -57,7 +57,7 @@ if "is_ok_clicked" not in st.session_state:
 
 # OEPENAI
 def llm_key_get():
-    api_client=OpenAI(api_key=st.secrets("OPENAI_API_KEY"))
+    api_client=OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
     llm_key=instructor.from_openai(client=api_client)
     return llm_key
 
@@ -68,10 +68,10 @@ def get_client():
     try:
         client=session.client(
             's3',
-            region_name=st.secrets("REGION_NAME"),
-            endpoint_url=st.secrets("ENPOINT_URL_KEY"),  # zmień na swoje
-            aws_access_key_id=st.secrets("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=st.secrets("AWS_SECRET_ACCESS_KEY")
+            region_name=st.secrets["REGION_NAME"],
+            endpoint_url=st.secrets["ENPOINT_URL_KEY"],  # zmień na swoje
+            aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"]
         )
     except:
         st.error("Błąd wczytywania danych spróbuj ponownie")
@@ -83,8 +83,8 @@ def get_compare_data():
     client=get_client()
     try:
         response=client.get_object(
-            Bucket=st.secrets("BUCKET"),
-            Key=st.secrets("MARATON_DATA")
+            Bucket=st.secrets["BUCKET"],
+            Key=st.secrets["MARATON_DATA"]
         )
 
         stream = response["Body"]
@@ -101,8 +101,8 @@ def get_pipeline_model():
 
     try:
         response = client.get_object(
-        Bucket=st.secrets("BUCKET"),
-        Key=st.secrets("MARATON_MODEL")
+        Bucket=st.secrets["BUCKET"],
+        Key=st.secrets["MARATON_MODEL"]
     )
 
         model_buffer = BytesIO(response["Body"].read())
@@ -163,9 +163,9 @@ def text_to_dict_lang(prompt,model) -> UserInfo:
     ]
 
     langfuse= Langfuse(
-        public_key=st.secrets("LANGFUSE_PUBLIC_KEY"),
-        secret_key=st.secrets("LANGFUSE_SECRET_KEY"),
-        host=st.secrets("LANGFUSE_HOST")
+        public_key=st.secrets["LANGFUSE_PUBLIC_KEY"],
+        secret_key=st.secrets["LANGFUSE_SECRET_KEY"],
+        host=st.secrets["LANGFUSE_HOST"]
     )
 
     trace = langfuse.trace(name="text_to_dict_lang")
